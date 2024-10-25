@@ -7,36 +7,44 @@ let imagesLoaded = 0;
 let totalImages = 0;
 let initialLoad = true;
 
-
-
-//  Checking if all images were loaded 
-function imageLoaded(){
-     imagesLoaded ++;
-     if(imagesLoaded === totalImages){ 
-         ready = true;
-         loader.hidden = true;
-        }     
-    }    
-    
-        
-    // Unsplash API
+// Unsplash API
 
 let count = 5;
 const apiKey = 'B7xk-NscsKhTWAuO4msm37MkkEL7Bo3ajYIstK033vY';
 let apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${count};`
 
-
 // Update apiURL with the new Count 
+
 function updateCount(picCount){
     apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${picCount};`
-
 }
+
+
+
+// Get Photos from Unsplash API
+
+async function getPhotos(){
+    try{
+        const response =  await fetch(apiUrl);
+        photosArray = await response.json();
+        displayPhotos();
+        
+        if (initialLoad){
+            updateCount(30);
+            initialLoad = false;
+        }
+    }    
+    catch(error){
+       
+    }    
+}   
+
 // Create Elements for Links & Photos and add to DOM
+
 function displayPhotos(){
     imagesLoaded = 0;
     totalImages = photosArray.length;
     
-
     // Run function for each object in Photo Array
 
     photosArray.forEach((photo) =>{
@@ -48,6 +56,7 @@ function displayPhotos(){
     })    
 
     // Create Element for img
+
     const img = document.createElement('img');
     setAttributes(img, {
         src:photo.urls.regular,
@@ -64,34 +73,26 @@ function displayPhotos(){
 });    
 }
 
-// Get Photos from Unsplash API
-async function getPhotos(){
-    try{
-        const response =  await fetch(apiUrl);
-        photosArray = await response.json();
-       
-        displayPhotos();
-        if (initialLoad){
-            updateCount(30);
-            initialLoad = false;
-        }
-    }    
-    catch(error){
-        // Catch from Here
-        
-    }    
-}    
+//  Checking if all images were loaded 
+
+function imageLoaded(){
+    imagesLoaded ++;
+    if(imagesLoaded === totalImages){ 
+        ready = true;
+        loader.hidden = true;
+       }     
+   }    
+
 
 // Helper Function to set Attribute on DOM Elements (To avoid DRY)
+
 function setAttributes(element, Attribute){ 
     for(const key in Attribute)    
     element.setAttribute(key, Attribute[key]);
 } 
 
-
- 
-
 // Check to see if scrolling near bottom of page ,Load more photos
+
 window.addEventListener('scroll',()=>{
     if(window.innerHeight + window.scrollY >= document.body.offsetHeight-1000 && ready ){
         ready =false;
